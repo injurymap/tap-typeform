@@ -578,7 +578,7 @@ python-versions = "*"
 
 [[package]]
 name = "singer-sdk"
-version = "0.3.11"
+version = "0.35.0"
 description = "A framework for building Singer taps"
 category = "main"
 optional = false
