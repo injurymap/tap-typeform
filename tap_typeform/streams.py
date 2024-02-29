@@ -98,6 +98,7 @@ class QuestionsStream(TypeformStream):
                 "id": question.get("id"),
                 "title": question.get("title"),
                 "type": question.get("type"),
+                "sub_questions": None
             }
 
             # Conditionally add sub_questions if type is 'group'
