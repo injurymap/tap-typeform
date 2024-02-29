@@ -70,7 +70,22 @@ class QuestionsStream(TypeformStream):
         th.Property("id", th.StringType),
         th.Property("title", th.StringType),
         th.Property("type", th.StringType),
+        th.Property("sub_questions", th.StringType),
     ).to_dict()
+
+    def fetch_sub_questions(self, row):
+        '''This function fetches records for each sub_question in a question group and returns a list of fetched sub_questions'''
+        sub_questions = [] #Creating blank list to accommodate each sub-question's records
+
+        #Appending each sub-question to the list
+        for question in row['properties'].get('fields',[]):
+            sub_questions.append({
+                "question_id": question['id'],
+                "title": question['title'],
+                "ref": question['ref']
+            })
+
+        return sub_questions
 
     def parse_response(self, response: requests.Response) -> Iterable[dict]:
         """Parse the response and return an iterator of result rows."""
@@ -78,12 +93,18 @@ class QuestionsStream(TypeformStream):
         fields = data.get("fields")
 
         for question in fields:
-            yield {
+            question_dict = {
                 "form_id": data.get("id"),
                 "id": question.get("id"),
                 "title": question.get("title"),
-                "type": question.get("type")
+                "type": question.get("type"),
             }
+
+            # Conditionally add sub_questions if type is 'group'
+            if question.get('type') == 'group':
+                question_dict['sub_questions'] = self.fetch_sub_questions(question)
+
+            yield question_dict
 
 class AnswersStream(TypeformStream):
     """Define custom stream."""
